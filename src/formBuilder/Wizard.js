@@ -23,7 +23,7 @@ import { CardDefaultParameterInputs } from './defaults/defaultInputs';
 import Tooltip from './Tooltip';
 import Add from './Add';
 import Card from './Card';
-import Wizard from './Wizard';
+import Section from './Section';
 import Step from './Step';
 import {
   checkForUnsupportedFeatures,
@@ -95,7 +95,7 @@ const useStyles = createUseStyles({
   },
 });
 
-export default function Section({
+export default function Wizard({
   name,
   required,
   schema,
@@ -271,7 +271,7 @@ export default function Section({
             )}
             <div className='section-entry' data-test='section-object-name'>
               <h5>
-                Section Object Name{' '}
+                Wizard Form Object Name{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -311,13 +311,14 @@ export default function Section({
                   }}
                   className='card-text'
                   readOnly={hideKey}
+                  disabled={true}
                 />
                 <FormFeedback>{keyError}</FormFeedback>
               </FormGroup>
             </div>
             <div className='section-entry' data-test='section-display-name'>
               <h5>
-                Section Display Name{' '}
+                Wizard Display Name{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -326,7 +327,7 @@ export default function Section({
                     typeof mods.tooltipDescriptions.cardSectionDisplayName ===
                       'string'
                       ? mods.tooltipDescriptions.cardSectionDisplayName
-                      : 'The name of the form section that will be shown to users of the form.'
+                      : 'The name of the form wizard that will be shown to users of the form.'
                   }
                   id={`${elementId}_titleinfo`}
                   type='help'
@@ -350,7 +351,7 @@ export default function Section({
             </div>
             <div className='section-entry' data-test='section-description'>
               <h5>
-                Section Description{' '}
+                Wizard Form Description{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -359,7 +360,7 @@ export default function Section({
                     typeof mods.tooltipDescriptions.cardSectionDescription ===
                       'string'
                       ? mods.tooltipDescriptions.cardSectionDescription
-                      : 'A description of the section which will be visible on the form.'
+                      : 'A description of the wizard form which will be visible on the form.'
                   }
                   id={`${elementId}_descriptioninfo`}
                   type='help'
@@ -403,7 +404,7 @@ export default function Section({
                   definitionData,
                   definitionUi,
                   categoryHash,
-                  formType: 'card',
+                  formType: 'step',
                 })
               }
               className='section-body'
@@ -430,7 +431,7 @@ export default function Section({
                       Section,
                       Wizard,
                       Step,
-                      formType: 'card',
+                      formType: 'step',
                     }).map((element: any, index) => (
                       <Draggable
                         key={element.key}
@@ -460,27 +461,17 @@ export default function Section({
               mods.components.add(addProperties)}
             {!mods?.components?.add && (
               <Add
-                options={[
-                  {
-                    value: 'card',
-                    label: 'Form element',
-                  },
-                  // {
-                  //   value: 'section',
-                  //   label: 'Form Section',
-                  // },
-                ]}
                 tooltipDescription={
                   ((mods || {}).tooltipDescriptions || {}).add
                 }
+                options={[
+                  {
+                    value: 'section',
+                    label: 'Form step',
+                  },
+                ]}
                 addElem={(choice: string) => {
-                  if (choice === 'card') {
-                    addCardObj(addProperties);
-                  } else if (choice === 'section') {
-                    addSectionObj(addProperties);
-                  } else if (choice === 'wizard') {
-                    addWizardObj(addProperties);
-                  }
+                  addSectionObj(addProperties);
                 }}
                 hidden={hideAddButton}
               />
@@ -541,7 +532,7 @@ export default function Section({
         />
       </Collapse>
       {mods?.components?.add && mods.components.add(parentProperties)}
-      {!mods?.components?.add && (
+      {/* {!mods?.components?.add && (
         <Add
           tooltipDescription={((mods || {}).tooltipDescriptions || {}).add}
           options={[
@@ -553,19 +544,24 @@ export default function Section({
               value: 'section',
               label: 'Form section',
             },
+            {
+              value: 'wizard',
+              label: 'Form wizard',
+            },
           ]}
           addElem={(choice: string) => {
             if (choice === 'card') {
               addCardObj(parentProperties);
             } else if (choice === 'section') {
               addSectionObj(parentProperties);
+            } else if (choice === 'wizard') {
+              addSectionObj(addProperties);
             }
-
             setCardOpen(false);
           }}
           componentOverride={mods?.components?.add}
         />
-      )}
+      )} */}
     </React.Fragment>
   );
 }

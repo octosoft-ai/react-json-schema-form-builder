@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+import _ from 'lodash';
 
 import JsonSchemaFormSuite from './JsonSchemaFormSuite';
 import { createUseStyles } from 'react-jss';
@@ -24,11 +25,43 @@ const initialUiSchema = {};
 const mods = {};
 
 export default function PlaygroundContainer({ title }: { title: string }) {
+  // steps ---> FormWizard
+  // Step1 -> Step2 -> Step3
+  // Step1 -> Step3 -> Step 5
+  // 2 controls:::
+  // 1. ctrl_age | Age -> [input]
+  // 2. formwizardInput2 | Complaints -> [input]
+  const updatedSchema = [
+    {
+      schema: 'step1Schema',
+      routes: [
+        {
+          conditions: [
+            { id: 'ctrl_age', value: '18', op: 'eq', required: true },
+            {
+              id: 'formwizardInput2',
+              value: 'Sick',
+              op: 'gt',
+              required: false,
+            },
+          ],
+          next: 'step2',
+          previous: null,
+        },
+        {},
+      ],
+    },
+  ];
+
+  // FormRenderer
+
   const [schema, setSchema] = React.useState(JSON.stringify(initialJsonSchema));
   const [uischema, setUischema] = React.useState(
     JSON.stringify(initialUiSchema),
   );
+  console.log({ schema: JSON.parse(schema) });
   const classes = useStyles();
+
   return (
     <div className='playground'>
       <div className={classes.header}>

@@ -9,6 +9,7 @@ import {
   ModalFooter,
 } from 'reactstrap';
 import { withTheme } from '@rjsf/core';
+import _ from 'lodash';
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4';
 import {
   FormBuilder,
@@ -24,7 +25,7 @@ const Form = withTheme(Bootstrap4Theme);
 
 type Props = {
   lang: string,
-  schema: string,
+  schema: any,
   uischema: string,
   onChange?: (schema: string, uischema: string) => void,
   schemaTitle?: string,
@@ -71,6 +72,7 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
 
     // assign initial values
     this.state = {
+      step: 0,
       formData: {},
       formToggle: true,
       outputToggle: false,
@@ -79,6 +81,22 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
       editorWidth: 700,
       submissionData: {},
     };
+  }
+
+  componentDidMount() {
+    if (JSON.parse(this.props.schema)?.formType === 'wizard') {
+      this.setState({
+        step: 0,
+      });
+    }
+  }
+
+  componentDidUpdate() {
+    console.log({
+      schema: JSON.parse(this.props.schema),
+      parsedSchema: this.parseSchema(JSON.parse(this.props.schema)),
+    });
+    console.log(this.parseSchema(JSON.parse(this.props.schema)), '---->');
   }
 
   // update state schema and indicate parsing errors
@@ -96,20 +114,77 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
   // update the internal form data state
   updateFormData(text: string) {
     try {
+      console.log('Hello ');
       const data = JSON.parse(text);
+      console.log({ data });
       this.setState({
         formData: data,
         schemaFormErrorFlag: '',
       });
     } catch (err) {
+      console.log(err);
       this.setState({
         schemaFormErrorFlag: err.toString(),
       });
     }
   }
 
+  onSubmit = () => {
+    console.log({ formData: this.state.formData });
+    if (
+      this.state.step < this.parseSchema(JSON.parse(this.props.schema)).maxStep
+    ) {
+      this.setState((prevState) => ({
+        ...prevState,
+        step: (prevState.step += 1),
+      }));
+    }
+  };
+
+  handleBack = () => {
+    if (this.state.step > 0) {
+      this.setState((prevState) => ({
+        ...prevState,
+        step: (prevState.step -= 1),
+      }));
+    }
+  };
+
+  parseSchema = (schema: any) => {
+    const type = schema.type;
+    const formWizard = schema.properties?.formWizard;
+
+    if (
+      Object.keys(schema).length &&
+      type === 'object' &&
+      formWizard &&
+      formWizard.properties
+    ) {
+      const formSteps = Object.keys(schema.properties.formWizard.properties);
+      const schemaCopy = _.omit(schema, 'properties.formWizard.properties');
+
+      const steps = {};
+      formSteps.forEach((key, index) => {
+        steps[index] = _.cloneDeep(schemaCopy);
+
+        if (!steps[index].properties.formWizard.properties) {
+          steps[index].properties.formWizard.properties = {};
+        }
+        steps[index].properties.formWizard.properties[key] =
+          schema.properties.formWizard?.properties[key];
+      });
+
+      return Object.keys(steps).length
+        ? { ...steps, formType: 'wizard', maxStep: formSteps.length - 1 }
+        : {};
+    }
+
+    return Object.keys(schema).length ? { ...schema, formType: 'normal' } : {};
+  };
+
   render() {
     const schemaError = checkError(this.props.schema, this.props.lang);
+    console.log({ schemaError });
     const schemaUiError = checkError(this.props.uischema, this.props.lang);
     return (
       <div
@@ -181,6 +256,7 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
                 >
                   <ErrorBoundary
                     onErr={(err: string) => {
+                      console.log('hiiiiiii');
                       this.setState({
                         schemaFormErrorFlag: err,
                       });
@@ -188,8 +264,17 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
                     errMessage='Error parsing JSON Schema'
                   >
                     <Form
+                      // schema={
+                      //   schemaError === '' ? JSON.parse(this.props.schema) : {}
+                      // }
+                      // schema={JSON.parse(this.props.schema)}
                       schema={
-                        schemaError === '' ? JSON.parse(this.props.schema) : {}
+                        this.parseSchema(JSON.parse(this.props.schema))
+                          ?.formType === 'wizard'
+                          ? this.parseSchema(JSON.parse(this.props.schema))[
+                              String(this.state.step)
+                            ]
+                          : this.parseSchema(JSON.parse(this.props.schema))
                       }
                       uiSchema={
                         schemaUiError === ''
@@ -201,15 +286,36 @@ class JsonSchemaFormEditor extends React.Component<Props, State> {
                       }
                       formData={this.state.formData}
                       submitButtonMessage={'Submit'}
-                      onSubmit={(submissionData) => {
-                        // below only runs if validation succeeded
-                        this.setState({
-                          validFormInput: true,
-                          outputToggle: true,
-                          submissionData,
-                        });
-                      }}
-                    />
+                      // onSubmit={(submissionData) => {
+                      //   // below only runs if validation succeeded
+                      //   this.setState({
+                      //     validFormInput: true,
+                      //     outputToggle: true,
+                      //     submissionData,
+                      //   });
+                      // }}
+                      onSubmit={this.onSubmit}
+                    >
+                      {this.state.step > 0 && (
+                        <button
+                          type='button'
+                          onClick={this.handleBack}
+                          className='btn btn-secondary'
+                        >
+                          Back
+                        </button>
+                      )}{' '}
+                      <button
+                        type='submit'
+                        className='btn btn-primary'
+                        onSubmit={this.onSubmit}
+                      >
+                        {this.state.step ===
+                        this.parseSchema(JSON.parse(this.props.schema)).maxStep
+                          ? 'Submit'
+                          : 'Next'}
+                      </button>
+                    </Form>
                   </ErrorBoundary>
                   <Modal isOpen={this.state.outputToggle}>
                     <ModalHeader>Form output preview</ModalHeader>

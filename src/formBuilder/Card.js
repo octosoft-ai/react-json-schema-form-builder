@@ -139,6 +139,8 @@ export default function Card({
   const [modalOpen, setModalOpen] = React.useState(false);
   const [elementId] = React.useState(getRandomId());
 
+  console.log({ componentProps });
+
   return (
     <React.Fragment>
       <Collapse
@@ -254,6 +256,20 @@ export default function Card({
       {mods?.components?.add && mods?.components?.add(addProperties)}
       {!mods?.components?.add && addElem && (
         <Add
+          options={[
+            {
+              value: 'card',
+              label: 'Form element',
+            },
+            // ...(!componentProps.path.split('_').includes('formWizard')
+            //   ? [
+            //       {
+            //         value: 'section',
+            //         label: 'Form section',
+            //       },
+            //     ]
+            //   : []),
+          ]}
           tooltipDescription={((mods || {}).tooltipDescriptions || {}).add}
           addElem={(choice: string) => addElem(choice)}
         />

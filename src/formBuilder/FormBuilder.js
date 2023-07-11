@@ -5,6 +5,8 @@ import { Alert, Input } from 'reactstrap';
 import { createUseStyles } from 'react-jss';
 import Card from './Card';
 import Section from './Section';
+import Wizard from './Wizard';
+import Step from './Step';
 import Add from './Add';
 import { arrows as arrowsStyle } from './styles';
 import {
@@ -18,6 +20,7 @@ import {
   countElementsFromSchema,
   generateCategoryHash,
   excludeKeys,
+  addWizardObj,
 } from './utils';
 import DEFAULT_FORM_INPUTS from './defaults/defaultFormInputs';
 import type { Node } from 'react';
@@ -222,6 +225,8 @@ export default function FormBuilder({
   const [cardOpenArray, setCardOpenArray] = React.useState(
     defaultCollapseStates,
   );
+  const [currentChoice, setCurrentchoice] = React.useState('');
+
   const categoryHash = generateCategoryHash(allFormInputs);
 
   const [isFirstRender, setIsFirstRender] = useState(true);
@@ -326,6 +331,7 @@ export default function FormBuilder({
               definitionData: schemaData.definitions,
               definitionUi: uiSchemaData.definitions,
               categoryHash,
+              formType: 'currentChoice',
             })
           }
           className='form-body'
@@ -351,6 +357,9 @@ export default function FormBuilder({
                   categoryHash,
                   Card,
                   Section,
+                  Wizard,
+                  Step,
+                  formType: currentChoice,
                 }).map((element: any, index) => (
                   <Draggable
                     key={element.key}
@@ -382,11 +391,28 @@ export default function FormBuilder({
           <Add
             tooltipDescription={((mods || {}).tooltipDescriptions || {}).add}
             labels={mods?.labels ?? {}}
+            options={[
+              {
+                value: 'card',
+                label: 'Form element',
+              },
+              {
+                value: 'section',
+                label: 'Form section',
+              },
+              {
+                value: 'wizard',
+                label: 'Form wizard',
+              },
+            ]}
             addElem={(choice: string) => {
+              setCurrentchoice(choice);
               if (choice === 'card') {
                 addCardObj(addProperties);
               } else if (choice === 'section') {
                 addSectionObj(addProperties);
+              } else if (choice === 'wizard') {
+                addWizardObj(addProperties);
               }
             }}
             hidden={hideAddButton}

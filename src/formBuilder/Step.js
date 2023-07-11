@@ -23,8 +23,8 @@ import { CardDefaultParameterInputs } from './defaults/defaultInputs';
 import Tooltip from './Tooltip';
 import Add from './Add';
 import Card from './Card';
+import Section from './Section';
 import Wizard from './Wizard';
-import Step from './Step';
 import {
   checkForUnsupportedFeatures,
   generateElementComponentsFromSchemas,
@@ -95,7 +95,7 @@ const useStyles = createUseStyles({
   },
 });
 
-export default function Section({
+export default function Step({
   name,
   required,
   schema,
@@ -271,7 +271,7 @@ export default function Section({
             )}
             <div className='section-entry' data-test='section-object-name'>
               <h5>
-                Section Object Name{' '}
+                Step Object Name{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -317,7 +317,7 @@ export default function Section({
             </div>
             <div className='section-entry' data-test='section-display-name'>
               <h5>
-                Section Display Name{' '}
+                Step Display Name{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -326,7 +326,7 @@ export default function Section({
                     typeof mods.tooltipDescriptions.cardSectionDisplayName ===
                       'string'
                       ? mods.tooltipDescriptions.cardSectionDisplayName
-                      : 'The name of the form section that will be shown to users of the form.'
+                      : 'The name of the step that will be shown to users of the form.'
                   }
                   id={`${elementId}_titleinfo`}
                   type='help'
@@ -350,7 +350,7 @@ export default function Section({
             </div>
             <div className='section-entry' data-test='section-description'>
               <h5>
-                Section Description{' '}
+                Step Description{' '}
                 <Tooltip
                   text={
                     mods &&
@@ -359,7 +359,7 @@ export default function Section({
                     typeof mods.tooltipDescriptions.cardSectionDescription ===
                       'string'
                       ? mods.tooltipDescriptions.cardSectionDescription
-                      : 'A description of the section which will be visible on the form.'
+                      : 'A description of the step which will be visible on the form.'
                   }
                   id={`${elementId}_descriptioninfo`}
                   type='help'
@@ -460,27 +460,17 @@ export default function Section({
               mods.components.add(addProperties)}
             {!mods?.components?.add && (
               <Add
+                tooltipDescription={
+                  ((mods || {}).tooltipDescriptions || {}).add
+                }
                 options={[
                   {
                     value: 'card',
                     label: 'Form element',
                   },
-                  // {
-                  //   value: 'section',
-                  //   label: 'Form Section',
-                  // },
                 ]}
-                tooltipDescription={
-                  ((mods || {}).tooltipDescriptions || {}).add
-                }
                 addElem={(choice: string) => {
-                  if (choice === 'card') {
-                    addCardObj(addProperties);
-                  } else if (choice === 'section') {
-                    addSectionObj(addProperties);
-                  } else if (choice === 'wizard') {
-                    addWizardObj(addProperties);
-                  }
+                  addCardObj(addProperties);
                 }}
                 hidden={hideAddButton}
               />
@@ -546,21 +536,12 @@ export default function Section({
           tooltipDescription={((mods || {}).tooltipDescriptions || {}).add}
           options={[
             {
-              value: 'card',
-              label: 'Form element',
-            },
-            {
               value: 'section',
-              label: 'Form section',
+              label: 'Form step',
             },
           ]}
           addElem={(choice: string) => {
-            if (choice === 'card') {
-              addCardObj(parentProperties);
-            } else if (choice === 'section') {
-              addSectionObj(parentProperties);
-            }
-
+            addSectionObj(parentProperties);
             setCardOpen(false);
           }}
           componentOverride={mods?.components?.add}

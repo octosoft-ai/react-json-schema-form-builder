@@ -40,11 +40,13 @@ export default function Add({
   hidden,
   tooltipDescription,
   labels,
+  options,
 }: {
   addElem: (choice: string) => void,
   hidden?: boolean,
   tooltipDescription?: string,
   labels?: ModLabels,
+  options: { label: Node, value: string | number }[],
 }): Node {
   const classes = useStyles();
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -76,17 +78,9 @@ export default function Add({
             className='choose-create'
             defaultValue={createChoice}
             horizontal={false}
-            options={[
-              {
-                value: 'card',
-                label: labels?.addElementLabel ?? 'Form element',
-              },
-              {
-                value: 'section',
-                label: labels?.addSectionLabel ?? 'Form section',
-              },
-            ]}
+            options={options}
             onChange={(selection) => {
+              console.log({ selection });
               setCreateChoice(selection);
             }}
           />
@@ -96,6 +90,7 @@ export default function Add({
             </Button>
             <Button
               onClick={() => {
+                console.log({ createChoice });
                 addElem(createChoice);
                 setPopoverOpen(false);
               }}

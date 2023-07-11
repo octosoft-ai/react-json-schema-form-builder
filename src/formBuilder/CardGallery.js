@@ -6,9 +6,11 @@ import {
   countElementsFromSchema,
   addCardObj,
   addSectionObj,
+  addWizardObj,
 } from './utils';
 import Card from './Card';
 import Section from './Section';
+import Wizard from './Wizard';
 import Add from './Add';
 import DEFAULT_FORM_INPUTS from './defaults/defaultFormInputs';
 import type { Node } from 'react';
@@ -62,6 +64,7 @@ export default function CardGallery({
     categoryHash,
     Card,
     Section,
+    Wizard,
   }).map((element: any) => (
     <div
       key={typeof element.key === 'string' ? element.key : ''}
@@ -109,6 +112,8 @@ export default function CardGallery({
                 addCardObj(addProperties);
               } else if (choice === 'section') {
                 addSectionObj(addProperties);
+              } else if (choice === 'wizard') {
+                addWizardObj(addProperties);
               }
             }}
             hidden={hideAddButton}
